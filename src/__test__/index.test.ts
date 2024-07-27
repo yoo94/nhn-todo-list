@@ -40,4 +40,18 @@ describe('TodoApp', () => {
         expect(todoApp.todos.length).toBe(1);
         expect(todoApp.todos[0].text).toBe('new Test Todo');
     });
+
+    test('todo 아이템 토글 상태변경 테스트', () => {
+        // 상태변경에 대한 반복적인 테스트 구현
+        todoApp.createTodo('Test Todo');
+
+        const todoItem = todoApp.todos[0];
+        expect(todoItem.completed).toBe(false);
+
+        todoItem.toggleCompletion();
+        expect(todoItem.completed).toBe(true);
+
+        todoItem.toggleCompletion();
+        expect(todoItem.completed).toBe(false);
+    });
 });

@@ -20,12 +20,24 @@ describe('TodoApp', () => {
 
 
     test('todo 아이템 추가 테스트', () => {
-        todoApp.createTodo('First Test Todo');
-        todoApp.createTodo('Second Test Todo');
+        todoApp.createTodo('old Test Todo');
+        todoApp.createTodo('new Test Todo');
 
         expect(todoApp.todos.length).toBe(2);
-        expect(todoApp.todos[0].text).toBe('Second Test Todo');
-        expect(todoApp.todos[1].text).toBe('First Test Todo')
+        expect(todoApp.todos[0].text).toBe('new Test Todo');
+        expect(todoApp.todos[1].text).toBe('old Test Todo')
     });
 
+    test('todo 아이템 삭제 테스트', () => {
+        todoApp.createTodo('old Test Todo');
+        todoApp.createTodo('new Test Todo');
+
+        expect(todoApp.todos.length).toBe(2);
+
+        const todoToDelete = todoApp.todos[1].id;
+        todoApp.deleteTodo(todoToDelete);
+
+        expect(todoApp.todos.length).toBe(1);
+        expect(todoApp.todos[0].text).toBe('new Test Todo');
+    });
 });

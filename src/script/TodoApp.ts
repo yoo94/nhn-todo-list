@@ -7,18 +7,24 @@ export class TodoApp {
     constructor() {
         this.todos = [];
         this.bindEvents();
-        this.render();
+        this.initRender();
     }
 
     createTodo(text: string) {
         const newTodo = new TodoItem(text);
         this.todos.unshift(newTodo);
-        this.render();
+        this.renderNewItem(newTodo);
+        this.updateCounts();
     }
 
     deleteTodo = (id: number) => {
         this.todos = this.todos.filter(todo => todo.id !== id);
-        this.render();
+        const todoList = document.getElementById('todo-list') as HTMLUListElement;
+        const itemToRemove = todoList.querySelector(`li[data-id="${id}"]`);
+        if (itemToRemove) {
+            itemToRemove.remove();
+        }
+        this.updateCounts();
     };
 
     updateCounts() {
@@ -43,17 +49,18 @@ export class TodoApp {
 
         const li = document.createElement('li');
         li.className = 'todo-item';
+        li.dataset.id = String(todo.id);
         li.innerHTML = `
             <span class="todo-text">${todo.text}</span>
             <button class="delete">삭제</button>
         `;
-        todoList.append(li);
+        todoList.prepend(li); // 새 항목을 리스트 맨 위에 추가
         li.querySelector('.delete')?.addEventListener('click', () => {
             this.deleteTodo(todo.id);
         });
     }
 
-    render() {
+    initRender() {
         const todoList = document.getElementById('todo-list') as HTMLUListElement;
         todoList.innerHTML = '';
 

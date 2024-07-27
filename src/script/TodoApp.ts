@@ -16,6 +16,11 @@ export class TodoApp {
         this.render();
     }
 
+    deleteTodo = (id: number) => {
+        this.todos = this.todos.filter(todo => todo.id !== id);
+        this.render();
+    };
+
     updateCounts() {
         const todoCount = document.getElementById('todo-count') as HTMLSpanElement;
         todoCount.textContent = `${this.todos.length} items left`;
@@ -43,6 +48,9 @@ export class TodoApp {
             <button class="delete">삭제</button>
         `;
         todoList.append(li);
+        li.querySelector('.delete')?.addEventListener('click', () => {
+            this.deleteTodo(todo.id);
+        });
     }
 
     render() {

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",                                 // 컴파일된 코드가 호환될 ECMAScript 버전
+    "module": "commonjs",                            // 모듈 시스템
+    "strict": true,                                  // 엄격한 타입 검사를 활성화
+    "esModuleInterop": true,                         // CommonJS와 ES Module 호환을 위한 설정
+    "skipLibCheck": true,                            // 라이브러리 타입 체크 건너뛰기
+    "forceConsistentCasingInFileNames": true,        // 파일 이름의 일관된 대소문자 강제
+    "sourceMap": true,                               // 소스 맵 파일 생성
+    "outDir": "./dist",                              // 컴파일된 파일이 저장될 디렉토리
+    "lib": ["es6", "dom"]
+  },
+  "include": ["src/**/*"],                      // 컴파일에 포함될 파일들
+
+}

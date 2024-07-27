@@ -11,7 +11,7 @@ export class TodoApp {
     }
 
     createTodo(text: string) {
-        const newTodo = new TodoItem(text);
+        const newTodo = new TodoItem(text,this);
         this.todos.unshift(newTodo);
         this.renderNewItem(newTodo);
         this.updateCounts();
@@ -26,6 +26,15 @@ export class TodoApp {
         }
         this.updateCounts();
     };
+
+    updateTodoItem(todo: TodoItem) {
+        const todoList = document.getElementById('todo-list') as HTMLUListElement;
+        const itemToUpdate = todoList.querySelector(`li[data-id="${todo.id}"] .todo-text`);
+        if (itemToUpdate) {
+            itemToUpdate.classList.toggle('completed', todo.completed);
+        }
+        this.updateCounts();
+    }
 
     updateCounts() {
         const todoCount = document.getElementById('todo-count') as HTMLSpanElement;
@@ -57,6 +66,9 @@ export class TodoApp {
         todoList.prepend(li); // 새 항목을 리스트 맨 위에 추가
         li.querySelector('.delete')?.addEventListener('click', () => {
             this.deleteTodo(todo.id);
+        });
+        li.querySelector('.todo-text')?.addEventListener('click', () => {
+            todo.toggleCompletion();
         });
     }
 

@@ -126,3 +126,8 @@ body {
     text-decoration: line-through;
     color: gray;
 }
+
+.draggingElementLocator {
+    background-color: #ff0000;
+    border: 2px dashed #ccc;
+}

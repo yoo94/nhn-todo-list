@@ -5,6 +5,7 @@ class DragDrop {
     private draggingElement: HTMLElement | null = null;
     private mouseOffsetX: number = 0;
     private mouseOffsetY: number = 0;
+    private draggingElementLocator: HTMLElement | null = null;
 
     constructor(app: TodoApp) {
         this.app = app; // TodoApp 인스턴스
@@ -22,16 +23,26 @@ class DragDrop {
         const target = event.target as HTMLElement;
         const dragTodoItem = target.closest('.todo-item') as HTMLElement;
 
-        //토글 이벤트가 걸리는 부분 return & 완료처리 아이템 제외
-        if (dragTodoItem && !dragTodoItem.querySelector('.todo-text')?.classList.contains('completed')) {
+        if (
+            dragTodoItem &&
+            (target.classList.contains('delete') ||
+                target.classList.contains('todo-text') ||
+                dragTodoItem.querySelector('.todo-text')?.classList.contains('completed'))
+        ) {
+            return;
+        }
+        if (dragTodoItem) {
             this.draggingElement = dragTodoItem;
             //선택한 dom요소의 크기와 위치
-            const rect = dragTodoItem.getBoundingClientRect();
+            const rect = dragTodoItem?.getBoundingClientRect();
             //마우스 위치 - 선택한 요소의 위치를 계산하여 초기 위치 저장
             this.mouseOffsetX = event.clientX - rect.left;
             this.mouseOffsetY = event.clientY - rect.top;
 
             dragTodoItem.classList.add('dragging');
+            this.draggingElementLocator = document.createElement('div');
+            this.draggingElementLocator.className = 'draggingElementLocator';
+            dragTodoItem.parentNode?.insertBefore(this.draggingElementLocator, dragTodoItem.nextSibling);
         }
     }
 
@@ -42,6 +53,15 @@ class DragDrop {
             // 현재 마우스 좌표 - 초기offset => 현재 drag하고있는 위치
             this.draggingElement.style.top = `${event.clientY - this.mouseOffsetY}px`;
             this.draggingElement.style.left = `${event.clientX - this.mouseOffsetX}px`;
+            // draggingElementLocator 위치 업데이트
+            const elements = Array.from(document.querySelectorAll('.todo-item:not(.dragging)'));
+            for (const element of elements) {
+                const rect = element.getBoundingClientRect();
+                if (event.clientY > rect.top && event.clientY < rect.bottom) {
+                    element.parentNode?.insertBefore(this.draggingElementLocator!, element.nextSibling);
+                    break;
+                }
+            }
         }
     }
 
@@ -51,6 +71,15 @@ class DragDrop {
             this.draggingElement.style.position = '';
             this.draggingElement.style.top = '';
             this.draggingElement.style.left = '';
+
+            if (this.draggingElementLocator && this.draggingElementLocator.parentNode) {
+                //draggingElementLocator(빨간줄) 앞에 삽입
+                this.draggingElementLocator.parentNode.insertBefore(this.draggingElement, this.draggingElementLocator);
+                this.draggingElementLocator.remove();
+                this.draggingElementLocator = null;
+                this.updateTodosList();
+            }
+
             this.draggingElement = null;
         }
     }
@@ -60,6 +89,18 @@ class DragDrop {
             this.dragEnd();
         }
     }
+    updateTodosList() {
+        const elements = Array.from(document.querySelectorAll('.todo-item'));
+        const newOrder = elements.map(element => {
+            const id = parseInt(element.getAttribute('data-id')!, 10);
+            return this.app.allTodos.find(todo => todo.id === id)!;
+        });
+
+        this.app.allTodos = newOrder;
+        this.app.activeTodos = newOrder.filter(todo => !todo.completed);
+        this.app.initRender();
+    }
+
 }
 
 export default DragDrop;

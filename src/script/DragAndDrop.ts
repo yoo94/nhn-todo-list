@@ -45,7 +45,7 @@ class DragDrop {
             dragTodoItem.classList.add('dragging');
             this.draggingElementLocator = document.createElement('li');
             this.draggingElementLocator.className = 'draggingElementLocator';
-            dragTodoItem.parentNode?.insertBefore(this.draggingElementLocator, dragTodoItem.nextSibling);
+            dragTodoItem.parentNode?.insertBefore(this.draggingElementLocator!, dragTodoItem.nextSibling);
         }
     }
 
@@ -60,8 +60,16 @@ class DragDrop {
             const elements = Array.from(document.querySelectorAll('.todo-item:not(.dragging)'));
             for (const element of elements) {
                 const rect = element.getBoundingClientRect();
-                if (event.clientY > rect.top && event.clientY < rect.bottom) {
-                    element.parentNode?.insertBefore(this.draggingElementLocator!, element.nextSibling);
+                const topBoundary = rect.top - 10; // 상단 경계를 10픽셀 늘림
+                const bottomBoundary = rect.bottom + 10; // 하단 경계를 10픽셀 늘림
+
+                if (event.clientY > topBoundary && event.clientY < bottomBoundary) {
+                    if (event.clientY < rect.top + rect.height / 2) {
+                        element.parentNode?.insertBefore(this.draggingElementLocator!, element);
+                    } else {
+                        element.parentNode?.insertBefore(this.draggingElementLocator!, element.nextSibling);
+                    }
+
                     if (this.previewTimeout) {
                         clearTimeout(this.previewTimeout);
                     }
@@ -74,7 +82,6 @@ class DragDrop {
             }
         }
     }
-
 
     dragEnd(event?: MouseEvent) {
         if (this.draggingElement) {
@@ -119,6 +126,7 @@ class DragDrop {
             this.dragEnd();
         }
     }
+
     updateTodosList() {
         const elements = Array.from(document.querySelectorAll('.todo-item'));
         const newOrder = elements.map(element => {

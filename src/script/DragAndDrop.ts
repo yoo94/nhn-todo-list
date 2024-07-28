@@ -22,7 +22,7 @@ class DragDrop {
         const target = event.target as HTMLElement;
         const dragTodoItem = target.closest('.todo-item') as HTMLElement;
 
-        // 완료처리 아이템 제외
+        //토글 이벤트가 걸리는 부분 return & 완료처리 아이템 제외
         if (dragTodoItem && !dragTodoItem.querySelector('.todo-text')?.classList.contains('completed')) {
             this.draggingElement = dragTodoItem;
             //선택한 dom요소의 크기와 위치

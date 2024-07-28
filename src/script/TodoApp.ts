@@ -1,12 +1,13 @@
 import '../style/main.css';
 import {TodoItem} from './TodoItem';
+import DragDrop from './DragAndDrop';
 
 export class TodoApp {
     allTodos: TodoItem[];
     activeTodos: TodoItem[];
     completedTodos: TodoItem[];
     filter: 'all' | 'active' | 'completed';
-
+    dragDrop: DragDrop;
     constructor() {
         this.allTodos = [];
         this.activeTodos = [];
@@ -14,6 +15,7 @@ export class TodoApp {
         this.filter = 'all';
         this.bindEvents();
         this.initRender();
+        this.dragDrop = new DragDrop(this);
     }
 
     createTodo(text: string) {

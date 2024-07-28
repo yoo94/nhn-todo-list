@@ -5,6 +5,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    user-select: none; /* 텍스트 선택 방지 */
 }
 
 .header {

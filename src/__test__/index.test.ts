@@ -46,15 +46,34 @@ describe('TodoApp', () => {
         todoApp.createTodo('Test Todo');
 
         const todoItem = todoApp.allTodos[0];
-
         expect(todoItem.completed).toBe(false);
 
-        todoItem.toggleCompletion();
-
+        todoApp.setItemToggleState(todoApp.allTodos[0]);
         expect(todoItem.completed).toBe(true);
 
-        todoItem.toggleCompletion();
-
+        todoApp.setItemToggleState(todoApp.allTodos[0]);
         expect(todoItem.completed).toBe(false);
+    });
+
+    test('todo 완료된 아이템 전체 삭제 테스트', () => {
+        // 상태변경에 대한 반복적인 테스트 구현
+        todoApp.createTodo('Test Todo');
+        todoApp.createTodo('Test Todo2');
+        todoApp.createTodo('Test Todo3');
+        todoApp.createTodo('Test Todo4');
+
+        todoApp.setItemToggleState(todoApp.allTodos[0]);
+        todoApp.setItemToggleState(todoApp.allTodos[1]);
+        todoApp.setItemToggleState(todoApp.allTodos[2]);
+
+        expect(todoApp.allTodos[0].completed).toBe(true);
+        expect(todoApp.allTodos[1].completed).toBe(true);
+        expect(todoApp.allTodos[2].completed).toBe(true);
+        expect(todoApp.completedTodos.length).toBe(3);
+
+        todoApp.deleteCompletedTodo();
+
+        expect(todoApp.completedTodos.length).toBe(0);
+        expect(todoApp.allTodos.length).toBe(1);
     });
 });

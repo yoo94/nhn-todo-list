@@ -2,11 +2,15 @@ import '../style/main.css';
 import {TodoItem} from './TodoItem';
 
 export class TodoApp {
-    todos: TodoItem[];
+    allTodos: TodoItem[];
+    activeTodos: TodoItem[];
+    completedTodos: TodoItem[];
     filter: 'all' | 'active' | 'completed';
 
     constructor() {
-        this.todos = [];
+        this.allTodos = [];
+        this.activeTodos = [];
+        this.completedTodos = [];
         this.filter = 'all';
         this.bindEvents();
         this.initRender();
@@ -14,32 +18,53 @@ export class TodoApp {
 
     createTodo(text: string) {
         const newTodo = new TodoItem(text,this);
-        this.todos.push(newTodo);
-        this.renderNewItem(newTodo);
-        this.updateCounts();
+        this.allTodos.unshift(newTodo);
+        this.activeTodos.unshift(newTodo);
+        this.initRender();
     }
 
     deleteTodo = (id: number) => {
-        this.todos = this.todos.filter(todo => todo.id !== id);
-        const todoList = document.getElementById('todo-list') as HTMLUListElement;
-        const itemToRemove = todoList.querySelector(`li[data-id="${id}"]`);
-        if (itemToRemove) {
-            itemToRemove.remove();
-        }
-        this.updateCounts();
+        this.allTodos = this.allTodos.filter(todo => todo.id !== id);
+        this.activeTodos = this.activeTodos.filter(todo => todo.id !== id);
+        this.completedTodos = this.completedTodos.filter(todo => todo.id !== id);
+        this.initRender();
     };
 
-    updateTodoItem(todo: TodoItem) {
-        const todoList = document.getElementById('todo-list') as HTMLUListElement;
-        const itemToUpdate = todoList.querySelector(`li[data-id="${todo.id}"] .todo-text`);
-        if (itemToUpdate) {
-            itemToUpdate.classList.toggle('completed', todo.completed);
+    setItemToggleState= (todo: TodoItem) => {
+        if (todo.completed) {
+            this.completedTodos = this.completedTodos.filter(t => t.id !== todo.id);
+            this.insertByTimestamp(this.activeTodos, todo);
+        } else {
+            this.activeTodos = this.activeTodos.filter(t => t.id !== todo.id);
+            this.insertByTimestamp(this.completedTodos, todo);
+        }
+        todo.toggleCompletion();
+    };
+
+    insertByTimestamp(array: TodoItem[], item: TodoItem) {
+        const index = array.findIndex(t => t.id < item.id);
+        if (index === -1) {
+            array.push(item);
+        } else {
+            array.splice(index, 0, item);
         }
     }
 
-    updateCounts(count?:number) {
+    updateCounts() {
         const todoCount = document.getElementById('todo-count') as HTMLSpanElement;
-        todoCount.textContent = `${count ?? this.todos.length} items left`;
+        let count: number;
+        switch (this.filter) {
+            case 'active':
+                count = this.activeTodos.length;
+                break;
+            case 'completed':
+                count = this.completedTodos.length;
+                break;
+            default:
+                count = this.allTodos.length;
+                break;
+        }
+        todoCount.textContent = `${count} items left`;
     }
 
     bindEvents() {
@@ -73,31 +98,35 @@ export class TodoApp {
             <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
             <button class="delete">삭제</button>
         `;
-        todoList.prepend(li); // 새 항목을 리스트 맨 위에 추가
+        todoList.appendChild(li);
         li.querySelector('.delete')?.addEventListener('click', () => {
             this.deleteTodo(todo.id);
         });
         li.querySelector('.todo-text')?.addEventListener('click', () => {
-            todo.toggleCompletion();
+            this.setItemToggleState(todo);
         });
     }
-    getFilteredItem() {
-        const todoList = document.getElementById('todo-list') as HTMLUListElement;
-        todoList.innerHTML = '';
 
-        return this.todos.filter(todo => {
-            if (this.filter === 'active') return !todo.completed;
-            if (this.filter === 'completed') return todo.completed;
-            return true;
-        });
+    getFilteredItems() {
+        switch (this.filter) {
+            case 'active':
+                return this.activeTodos;
+            case 'completed':
+                return this.completedTodos;
+            default:
+                return [...this.activeTodos, ...this.completedTodos];
+        }
     }
 
     initRender() {
-        const filteredTodos = this.getFilteredItem();
+        const todoList = document.getElementById('todo-list') as HTMLUListElement;
+        todoList.innerHTML = '';
+
+        const filteredTodos = this.getFilteredItems();
         filteredTodos.forEach(todoData => {
             this.renderNewItem(todoData);
-            this.updateTodoItem(todoData);
         });
-        this.updateCounts(filteredTodos.length);
+
+        this.updateCounts();
     }
 }

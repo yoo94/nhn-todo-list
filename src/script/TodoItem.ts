@@ -15,7 +15,6 @@ export class TodoItem {
 
     toggleCompletion() {
         this.completed = !this.completed;
-        this.app.updateTodoItem(this);
         this.app.initRender();
     }
 }

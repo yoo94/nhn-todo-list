@@ -22,7 +22,11 @@ export class TodoApp {
         this.activeTodos.unshift(newTodo);
         this.initRender();
     }
-
+    deleteCompletedTodo = () => {
+        this.completedTodos = [];
+        this.allTodos = this.allTodos.filter(todo => !todo.completed);
+        this.initRender();
+    };
     deleteTodo = (id: number) => {
         this.allTodos = this.allTodos.filter(todo => todo.id !== id);
         this.activeTodos = this.activeTodos.filter(todo => todo.id !== id);
@@ -52,6 +56,7 @@ export class TodoApp {
 
     updateCounts() {
         const todoCount = document.getElementById('todo-count') as HTMLSpanElement;
+        const completedTodoCount = document.getElementById('completed-count') as HTMLSpanElement;
         let count: number;
         switch (this.filter) {
             case 'active':
@@ -65,6 +70,7 @@ export class TodoApp {
                 break;
         }
         todoCount.textContent = `${count} items left`;
+        completedTodoCount.textContent = `${this.completedTodos.length}`;
     }
 
     bindEvents() {
@@ -89,6 +95,7 @@ export class TodoApp {
     }
     renderNewItem(todo: TodoItem) {
         const todoList = document.getElementById('todo-list') as HTMLUListElement;
+        const clearCompletedButton = document.getElementById('clear-completed') as HTMLUListElement;
 
         const li = document.createElement('li');
         li.className = 'todo-item';
@@ -104,6 +111,9 @@ export class TodoApp {
         });
         li.querySelector('.todo-text')?.addEventListener('click', () => {
             this.setItemToggleState(todo);
+        });
+        clearCompletedButton?.addEventListener('click', () => {
+            this.deleteCompletedTodo();
         });
     }
 

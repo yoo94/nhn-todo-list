@@ -36,6 +36,7 @@ export class TodoApp {
         this.initRender();
     };
 
+
     setItemToggleState= (todo: TodoItem) => {
         if (todo.completed) {
             this.completedTodos = this.completedTodos.filter(t => t.id !== todo.id);
@@ -75,48 +76,28 @@ export class TodoApp {
         completedTodoCount.textContent = `${this.completedTodos.length}`;
     }
 
-    bindEvents() {
-        document.getElementById('new-todo')?.addEventListener('keypress', (event: KeyboardEvent) => {
-            if (event.key === 'Enter') {
-                const input = event.target as HTMLInputElement;
-                //공백만 입력 방지
-                if (input.value.trim() !== '') {
-                    this.createTodo(input.value);
-                    input.value = '';
-                }
-            }
-        });
-        document.querySelectorAll('.action-button').forEach(button => {
-            button.addEventListener('click', () => {
-                this.filter = button.getAttribute('data-filter') as 'all' | 'active' | 'completed';
-                document.querySelectorAll('.action-button').forEach(btn => btn.classList.remove('push'));
-                button.classList.add('push');
-                this.initRender();
-            });
-        });
-    }
     renderNewItem(todo: TodoItem) {
         const todoList = document.getElementById('todo-list') as HTMLUListElement;
         const clearCompletedButton = document.getElementById('clear-completed') as HTMLUListElement;
 
+        const li = this.createTodoLiItem(todo);
+        todoList.appendChild(li);
+
+        li.querySelector('.delete')?.addEventListener('click', () => this.deleteTodo(todo.id));
+        li.querySelector('.todo-text')?.addEventListener('click', () => this.setItemToggleState(todo));
+        clearCompletedButton?.addEventListener('click', this.deleteCompletedTodo);
+    }
+
+    createTodoLiItem(todoData: TodoItem): HTMLElement {
         const li = document.createElement('li');
         li.className = 'todo-item';
-        li.dataset.id = String(todo.id);
+        li.dataset.id = String(todoData.id);
         li.innerHTML = `
-            <input type="checkbox" class="toggle" ${todo.completed ? 'checked' : ''} style="display:none;">
-            <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
+            <input type="checkbox" class="toggle" ${todoData.completed ? 'checked' : ''} style="display:none;">
+            <span class="todo-text ${todoData.completed ? 'completed' : ''}">${todoData.text}</span>
             <button class="delete">삭제</button>
         `;
-        todoList.appendChild(li);
-        li.querySelector('.delete')?.addEventListener('click', () => {
-            this.deleteTodo(todo.id);
-        });
-        li.querySelector('.todo-text')?.addEventListener('click', () => {
-            this.setItemToggleState(todo);
-        });
-        clearCompletedButton?.addEventListener('click', () => {
-            this.deleteCompletedTodo();
-        });
+        return li;
     }
 
     getFilteredItems() {
@@ -141,4 +122,26 @@ export class TodoApp {
 
         this.updateCounts();
     }
+
+    bindEvents() {
+        document.getElementById('new-todo')?.addEventListener('keypress', (event: KeyboardEvent) => {
+            if (event.key === 'Enter') {
+                const input = event.target as HTMLInputElement;
+                //공백만 입력 방지
+                if (input.value.trim() !== '') {
+                    this.createTodo(input.value);
+                    input.value = '';
+                }
+            }
+        });
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', () => {
+                this.filter = button.getAttribute('data-filter') as 'all' | 'active' | 'completed';
+                document.querySelectorAll('.action-button').forEach(btn => btn.classList.remove('push'));
+                button.classList.add('push');
+                this.initRender();
+            });
+        });
+    }
+
 }

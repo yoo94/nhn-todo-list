@@ -6,7 +6,7 @@ class DragDrop {
     private mouseOffsetX: number = 0;
     private mouseOffsetY: number = 0;
     private draggingElementLocator: HTMLElement | null = null;
-
+    private previewTimeout: number | null = null;
     constructor(app: TodoApp) {
         this.app = app; // TodoApp 인스턴스
         this.bindDragDropEvents(); // 바인딩하는 메서드
@@ -39,8 +39,11 @@ class DragDrop {
             this.mouseOffsetX = event.clientX - rect.left;
             this.mouseOffsetY = event.clientY - rect.top;
 
+            dragTodoItem.style.width = `${rect.width}px`;
+            dragTodoItem.style.height = `${rect.height}px`;
+
             dragTodoItem.classList.add('dragging');
-            this.draggingElementLocator = document.createElement('div');
+            this.draggingElementLocator = document.createElement('li');
             this.draggingElementLocator.className = 'draggingElementLocator';
             dragTodoItem.parentNode?.insertBefore(this.draggingElementLocator, dragTodoItem.nextSibling);
         }
@@ -59,11 +62,19 @@ class DragDrop {
                 const rect = element.getBoundingClientRect();
                 if (event.clientY > rect.top && event.clientY < rect.bottom) {
                     element.parentNode?.insertBefore(this.draggingElementLocator!, element.nextSibling);
+                    if (this.previewTimeout) {
+                        clearTimeout(this.previewTimeout);
+                    }
+                    this.previewTimeout = window.setTimeout(() => {
+                        this.setPreview();
+                    }, 2000);
+
                     break;
                 }
             }
         }
     }
+
 
     dragEnd(event?: MouseEvent) {
         if (this.draggingElement) {
@@ -80,6 +91,9 @@ class DragDrop {
                 this.draggingElement.style.position = '';
                 this.draggingElement.style.top = '';
                 this.draggingElement.style.left = '';
+                this.draggingElement.style.width = '';
+                this.draggingElement.style.height = '';
+                this.draggingElement.style.display='';
                 this.draggingElement = null;
 
                 if (this.draggingElementLocator) {
@@ -117,6 +131,26 @@ class DragDrop {
         this.app.initRender();
     }
 
+    setPreview() {
+        if (this.draggingElement) {
+            if (this.draggingElementLocator && this.draggingElementLocator.parentNode) {
+                const dragging = this.draggingElement;
+                dragging.style.display='none';
+                const todoList = document.getElementById('todo-list') as HTMLElement;
+                if (dragging && todoList) {
+                    const clonedElement = dragging.cloneNode(true) as HTMLElement;
+                    // 원래 요소의 스타일을 복제하여 적용
+                    const rect = dragging?.getBoundingClientRect();
+                    //마우스 위치 - 선택한 요소의 위치를 계산하여 초기 위치 저장
+                    clonedElement.style.width = `${rect.width}px`;
+                    clonedElement.style.height = `${rect.height}px`;
+                    // 기존의 draggingElementLocator 내용을 대체
+                    this.draggingElementLocator.innerHTML = clonedElement.innerHTML;
+                }
+            }
+        }
+
+    }
 }
 
 export default DragDrop;

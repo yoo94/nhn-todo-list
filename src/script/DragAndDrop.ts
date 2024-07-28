@@ -65,13 +65,29 @@ class DragDrop {
         }
     }
 
-    dragEnd() {
+    dragEnd(event?: MouseEvent) {
         if (this.draggingElement) {
-            this.draggingElement.classList.remove('dragging');
-            this.draggingElement.style.position = '';
-            this.draggingElement.style.top = '';
-            this.draggingElement.style.left = '';
+            // 리스트 요소보다 밖으로 나가서 end하면 취소
+            const todoList = document.getElementById('todo-list') as HTMLUListElement;
+            const todoListRect = todoList.getBoundingClientRect();
+            if (!(event) // esc를 눌럿을떄
+                || event.clientX < todoListRect.left // 마우스 좌표가 list를 넘어설때
+                || event.clientX > todoListRect.right
+                || event.clientY < todoListRect.top
+                || event.clientY > todoListRect.bottom
+            ) {
+                this.draggingElement.classList.remove('dragging');
+                this.draggingElement.style.position = '';
+                this.draggingElement.style.top = '';
+                this.draggingElement.style.left = '';
+                this.draggingElement = null;
 
+                if (this.draggingElementLocator) {
+                    this.draggingElementLocator.remove();
+                    this.draggingElementLocator = null;
+                }
+                return;
+            }
             if (this.draggingElementLocator && this.draggingElementLocator.parentNode) {
                 //draggingElementLocator(빨간줄) 앞에 삽입
                 this.draggingElementLocator.parentNode.insertBefore(this.draggingElement, this.draggingElementLocator);

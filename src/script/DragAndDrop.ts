@@ -29,7 +29,7 @@ class DragDrop {
             //드래그한 아이템 가이드 라인 생성
             this.setDraggingElementLocator();
         }
-    };
+    }
     //dragStart 관련 함수
     isDragAvailable(target: HTMLElement, dragTodoItem: HTMLElement | null): boolean {
         return !!(dragTodoItem &&

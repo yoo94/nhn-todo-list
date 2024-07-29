@@ -19,7 +19,7 @@ export class TodoApp {
     }
 
     createTodo(text: string) {
-        const newTodo = new TodoItem(text,this);
+        const newTodo = new TodoItem(text);
         this.allTodos.unshift(newTodo);
         this.activeTodos.unshift(newTodo);
         this.initRender();
@@ -46,6 +46,7 @@ export class TodoApp {
             this.insertByTimestamp(this.completedTodos, todo);
         }
         todo.toggleCompletion();
+        this.initRender();
     };
 
     insertByTimestamp(array: TodoItem[], item: TodoItem) {

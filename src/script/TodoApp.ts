@@ -26,13 +26,13 @@ export class TodoApp {
     }
     deleteCompletedTodo = () => {
         this.completedTodos = [];
-        this.allTodos = this.allTodos.filter(todo => !todo.completed);
+        this.allTodos = this.allTodos.filter(t => !t.completed);
         this.initRender();
     };
     deleteTodo = (id: number) => {
-        this.allTodos = this.allTodos.filter(todo => todo.id !== id);
-        this.activeTodos = this.activeTodos.filter(todo => todo.id !== id);
-        this.completedTodos = this.completedTodos.filter(todo => todo.id !== id);
+        this.allTodos = this.allTodos.filter(t  => t.id !== id);
+        this.activeTodos = this.activeTodos.filter(t  => t.id !== id);
+        this.completedTodos = this.completedTodos.filter(t  => t.id !== id);
         this.initRender();
     };
 

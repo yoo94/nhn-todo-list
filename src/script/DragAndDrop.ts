@@ -1,4 +1,5 @@
 import { TodoApp } from './TodoApp';
+import DragDropPreviewManager from './DragDropPreviewManager';
 
 class DragDrop {
     private app: TodoApp;
@@ -6,10 +7,12 @@ class DragDrop {
     private mouseOffsetX: number = 0;
     private mouseOffsetY: number = 0;
     private draggingElementLocator: HTMLElement | null = null;
-    private previewTimeout: number | null = null;
+    private dragDropPreviewManager: DragDropPreviewManager;
+
     constructor(app: TodoApp) {
         this.app = app; // TodoApp 인스턴스
         this.bindDragDropEvents(); // 바인딩하는 메서드
+        this.dragDropPreviewManager = new DragDropPreviewManager(); //preview 생성
     }
 
     bindDragDropEvents() {
@@ -100,13 +103,8 @@ class DragDrop {
                 } else {
                     element.parentNode?.insertBefore(this.draggingElementLocator!, element.nextSibling);
                 }
-                if (this.previewTimeout) {
-                    clearTimeout(this.previewTimeout);
-                }
-                this.previewTimeout = window.setTimeout(() => {
-                    this.setPreview();
-                }, 2000);
-
+                this.dragDropPreviewManager.setDraggingElements(this.draggingElement, this.draggingElementLocator);
+                this.dragDropPreviewManager.schedulePreview();
                 break;
             }
         }
@@ -168,11 +166,7 @@ class DragDrop {
             this.draggingElement.style.display = '';
             this.draggingElement = null;
         }
-
-        if (this.previewTimeout) {
-            clearTimeout(this.previewTimeout);
-            this.previewTimeout = null;
-        }
+        this.dragDropPreviewManager.clearPreviewTimeout();
     }
 
     handleKeyDown(event: KeyboardEvent) {
@@ -191,27 +185,6 @@ class DragDrop {
         this.app.allTodos = newOrder;
         this.app.activeTodos = newOrder.filter(todo => !todo.completed);
         this.app.initRender();
-    }
-
-    setPreview() {
-        if (this.draggingElement) {
-            if (this.draggingElementLocator && this.draggingElementLocator.parentNode) {
-                const dragging = this.draggingElement;
-                dragging.style.display='none';
-                const todoList = document.getElementById('todo-list') as HTMLElement;
-                if (dragging && todoList) {
-                    const clonedElement = dragging.cloneNode(true) as HTMLElement;
-                    // 원래 요소의 스타일을 복제하여 적용
-                    const rect = dragging?.getBoundingClientRect();
-                    //마우스 위치 - 선택한 요소의 위치를 계산하여 초기 위치 저장
-                    clonedElement.style.width = `${rect.width}px`;
-                    clonedElement.style.height = `${rect.height}px`;
-                    // 기존의 draggingElementLocator 내용을 대체
-                    this.draggingElementLocator.innerHTML = clonedElement.innerHTML;
-                }
-            }
-        }
-
     }
 }
 

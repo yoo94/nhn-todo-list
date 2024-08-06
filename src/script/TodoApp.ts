@@ -79,14 +79,12 @@ export class TodoApp {
 
     renderNewItem(todo: TodoItem) {
         const todoList = document.getElementById('todo-list') as HTMLUListElement;
-        const clearCompletedButton = document.getElementById('clear-completed') as HTMLUListElement;
 
         const li = this.createTodoLiItem(todo);
         todoList.appendChild(li);
 
         li.querySelector('.delete')?.addEventListener('click', () => this.deleteTodo(todo.id));
         li.querySelector('.todo-text')?.addEventListener('click', () => this.setItemToggleState(todo));
-        clearCompletedButton?.addEventListener('click', this.deleteCompletedTodo);
     }
 
     createTodoLiItem(todoData: TodoItem): HTMLElement {
@@ -143,6 +141,6 @@ export class TodoApp {
                 this.initRender();
             });
         });
+        document.getElementById('clear-completed')?.addEventListener('click', this.deleteCompletedTodo);
     }
-
 }
